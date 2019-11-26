@@ -33,20 +33,22 @@ else:
 run_shell = functools.partial(subprocess_run, shell=True)
 
 CWD = os.getcwd()
-BASE_CMD = "PYTHONPATH=%s/local-packages python -S -mpip" % CWD
-RUN_CMD = "PYTHONPATH=%s/local-packages python -S" % CWD
+PYTHON = sys.executable
+BASE_CMD = "PYTHONPATH=%s/local-packages %s -S -mpip" % (CWD, PYTHON)
+RUN_CMD = "PYTHONPATH=%s/local-packages %s -S" % (CWD, PYTHON)
 
 def install(args):
     run_shell(BASE_CMD + " install -t local-packages " + " ".join(args.packages))
 
 def run(args):
     if args.command != 'python':
-        command = '-m%s' % args.command
+        command = ' -m%s ' % args.command
     else:
         command = ""
 
     command_args = ["'%s'" % arg for arg in getattr(args, 'command-args')]
-    run_shell(RUN_CMD + command + " " + " ".join(command_args))
+    command = RUN_CMD + command + " " + " ".join(command_args)
+    run_shell(command)
 
 def assert_python3():
     if sys.version_info.major < 3:
