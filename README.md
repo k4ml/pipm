@@ -6,7 +6,7 @@ PoC for method described in this [article][1].
 ```
 git clone https://github.com/k4ml/pipm.git
 cd pipm
-sudo cp pipm.py /usr/local/bin/
+sudo cp pipm.py /usr/local/bin/pipm
 ```
 
 Now we can run it as `pipm`. For example:-
