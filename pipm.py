@@ -25,7 +25,12 @@ import argparse
 import subprocess
 import functools
 
-run_shell = functools.partial(subprocess.run, shell=True, check=True)
+if hasattr(subprocess, 'run'):
+    subprocess_run = subprocess.run
+else:
+    subprocess_run = subprocess.call
+
+run_shell = functools.partial(subprocess_run, shell=True)
 
 CWD = os.getcwd()
 BASE_CMD = "PYTHONPATH=%s/local-packages python -S -mpip" % CWD
