@@ -48,6 +48,11 @@ def run(args):
     command_args = ["'%s'" % arg for arg in getattr(args, 'command-args')]
     run_shell(RUN_CMD + command + " " + " ".join(command_args))
 
+def assert_python3():
+    if sys.version_info.major < 3:
+        print("Require python 3. You might want to change shebang to #!/usr/bin/python3")
+        sys.exit(1)
+
 def bootstrap():
     if os.path.exists('local-packages'):
         return
@@ -71,6 +76,7 @@ def main(args=sys.argv[1:]):
     parser_run.add_argument('command-args', type=str, help='arguments for command', nargs="*")
     parser_run.set_defaults(func=run)
 
+    assert_python3()
     bootstrap()
     parsed_args = parser.parse_args(args)
     parsed_args.func(parsed_args)
