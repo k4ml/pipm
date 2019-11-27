@@ -34,21 +34,7 @@ run_shell = functools.partial(subprocess_run, shell=True)
 
 CWD = os.getcwd()
 PYTHON = sys.executable
-BASE_CMD = "PYTHONPATH=%s/local-packages %s -S -mpip" % (CWD, PYTHON)
-RUN_CMD = "PYTHONPATH=%s/local-packages %s -S" % (CWD, PYTHON)
-
-def install(args):
-    run_shell(BASE_CMD + " install -t local-packages " + " ".join(args.packages))
-
-def run(args):
-    if args.command != 'python':
-        command = ' -m%s ' % args.command
-    else:
-        command = ""
-
-    command_args = ["'%s'" % arg for arg in getattr(args, 'command-args')]
-    command = RUN_CMD + command + " " + " ".join(command_args)
-    run_shell(command)
+BASE_CMD = "PYTHONPATH=%s/local-packages %s -S" % (CWD, PYTHON)
 
 def assert_python3():
     if sys.version_info.major < 3:
@@ -66,22 +52,28 @@ def bootstrap():
 def main(args=sys.argv[1:]):
     # create the top-level parser
     parser = argparse.ArgumentParser(prog='PROG')
-    parser.add_argument('--foo', action='store_true', help='foo help')
-    subparsers = parser.add_subparsers(help='sub-command help')
+    parser.add_argument('command', help='command to run')
+    parsed_args, rest = parser.parse_known_args(args)
+    if parsed_args.command == 'run':
+        run_parser = argparse.ArgumentParser(prog='pipm run')
+        run_parser.add_argument('module', help='module to run')
+        run_args, run_rest = run_parser.parse_known_args(rest)
+        module = run_args.module
+        rest = run_rest
+    else:
+        if parsed_args.command == 'install':
+            module = 'pip %s -t local-packages' % parsed_args.command
+        else:
+            module = 'pip %s' % parsed_args.command
 
-    parser_install = subparsers.add_parser('install', help='a help')
-    parser_install.add_argument('packages', type=str, help='Package name to install', nargs="+")
-    parser_install.set_defaults(func=install)
+    command_args = ["'%s'" % arg for arg in rest]
 
-    parser_run = subparsers.add_parser('run', help='b help')
-    parser_run.add_argument('command', type=str, help='command to run')
-    parser_run.add_argument('command-args', type=str, help='arguments for command', nargs="*")
-    parser_run.set_defaults(func=run)
+    if module == 'python':
+        commands = BASE_CMD + " " + " ".join(command_args)
+    else:
+        commands = BASE_CMD + " -m%s" % module + " " + " ".join(command_args)
 
-    assert_python3()
-    bootstrap()
-    parsed_args = parser.parse_args(args)
-    parsed_args.func(parsed_args)
+    run_shell(commands)
 
 if __name__ == "__main__":
     main()
