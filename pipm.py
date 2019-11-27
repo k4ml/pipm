@@ -50,6 +50,9 @@ def bootstrap():
     run_shell("python -mpip install -t local-packages setuptools pip")
 
 def main(args=sys.argv[1:]):
+    assert_python3()
+    bootstrap()
+
     # create the top-level parser
     parser = argparse.ArgumentParser(prog='PROG')
     parser.add_argument('command', help='command to run')
