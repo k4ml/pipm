@@ -9,6 +9,8 @@ cd pipm
 sudo cp pipm.py /usr/local/bin/pipm
 ```
 
+## Usage
+
 Now we can run it as `pipm`. For example:-
 
 ```
